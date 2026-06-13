@@ -1,0 +1,37 @@
+.env
+.venv/
+.idea/
+__pycache__/
+*.pyc
+.DS_Store
+*.log
+*.sqlite3
+*.db
+*.bak
+*.swp   
+*.swo
+*.zip
+*.tar.gz
+*.egg-info/
+dist/
+build/
+*.egg
+coverage/
+htmlcov/
+*.cover
+
+# Node / Playwright
+node_modules/
+playwright-report/
+test-results/
+
+# Python / local environment
+.pytest_cache/
+.venv/
+
+# IDE / OS noise
+.vscode/
+
+tools/
+docs/_build/
+
