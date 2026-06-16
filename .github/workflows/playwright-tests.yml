@@ -1,0 +1,81 @@
+name: Playwright E2E Tests
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'AQA_DEMOBLAZE_COM/**'
+      - '.github/workflows/playwright*'
+
+  pull_request:
+    branches:
+      - develop
+      - master
+    paths:
+      - 'AQA_DEMOBLAZE_COM/**'
+      - '.github/workflows/playwright*'
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Run E2E Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    defaults:
+      run:
+        working-directory: AQA_DEMOBLAZE_COM
+
+    # env:
+    #   STG_URL: ${{ secrets.STG_URL }}
+    #   SIMPLE_USER_EMAIL: ${{ secrets.SIMPLE_USER_EMAIL }}
+    #   SIMPLE_USER_PASSWORD: ${{ secrets.SIMPLE_USER_PASSWORD }}
+    #   VALID_EMAIL: ${{ secrets.VALID_EMAIL }}
+    #   VALID_PASSWORD: ${{ secrets.VALID_PASSWORD }}
+    #   HEADLESS: "true"
+    #   PYTHONPATH: ${{ github.workspace }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('AQA_DEMOBLAZE_COM/package.json') }}
+          restore-keys: |
+            playwright-${{ runner.os }}-
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+
+      - name: Run Playwright Tests
+        run: |
+          npx playwright test
+
+      - name: Upload Test Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-artifacts
+          path: AQA_DEMOBLAZE_COM/test-results
+          retention-days: 7
+          if-no-files-found: ignore

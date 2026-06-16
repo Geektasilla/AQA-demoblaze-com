@@ -2,6 +2,7 @@ import { test as base, expect as baseExpect } from '@playwright/test';
 
 import { LoginModal } from '../components/login.modal';
 import { NavbarComponent } from '../components/navbar.component';
+import { OrderModal } from '../components/order.modal';
 import { SignUpModal } from '../components/signup.modal';
 import { CartPage } from '../pages/cart.page';
 import { ProductPage } from '../pages/product.page';
@@ -10,6 +11,7 @@ type AuthFixtures = {
   navbar: NavbarComponent;
   loginModal: LoginModal;
   signupModal: SignUpModal;
+  orderModal: OrderModal;
   cartPage: CartPage;
   productPage: ProductPage;
 };
@@ -25,6 +27,10 @@ export const test = base.extend<AuthFixtures>({
 
   signupModal: async ({ page }, use) => {
     await use(new SignUpModal(page));
+  },
+
+  orderModal: async ({ page }, use) => {
+    await use(new OrderModal(page));
   },
 
   cartPage: async ({ page }, use) => {
