@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'AQA_DEMOBLAZE_COM/**'
+      - './**'
       - '.github/workflows/playwright*'
 
   pull_request:
@@ -13,7 +13,7 @@ on:
       - develop
       - master
     paths:
-      - 'AQA_DEMOBLAZE_COM/**'
+      - './**'
       - '.github/workflows/playwright*'
 
   workflow_dispatch:
@@ -31,9 +31,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
-    defaults:
-      run:
-        working-directory: AQA_DEMOBLAZE_COM
+    # defaults:
+    #   run:
+    #     working-directory: 
 
     # env:
     #   STG_URL: ${{ secrets.STG_URL }}
@@ -57,7 +57,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('AQA_DEMOBLAZE_COM/package.json') }}
+          key: playwright-${{ runner.os }}-${{ hashFiles('./package.json') }}
           restore-keys: |
             playwright-${{ runner.os }}-
       - name: Install dependencies
@@ -76,6 +76,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: playwright-artifacts
-          path: AQA_DEMOBLAZE_COM/test-results
+          path: ./test-results
           retention-days: 7
           if-no-files-found: ignore
