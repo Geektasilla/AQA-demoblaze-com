@@ -14,7 +14,7 @@ export class SignUpModal {
     this.usernameInput = this.root.locator('#sign-username');
     this.passwordInput = this.root.locator('#sign-password');
     this.submitButton = this.root.getByRole('button', { name: 'Sign up' });
-    this.closeButton = this.root.getByRole('button', { name: 'Close' });
+    this.closeButton = this.root.locator('.btn-secondary', { hasText: 'Close' });
   }
 
   async open() {
