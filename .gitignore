@@ -5,6 +5,8 @@ __pycache__/
 *.pyc
 .DS_Store
 *.log
+*.err
+test-output.json
 *.sqlite3
 *.db
 *.bak
