@@ -11,6 +11,7 @@ export class OrderModal {
   readonly yearInput: Locator;
   readonly purchaseButton: Locator;
   readonly closeButton: Locator;
+  readonly confirmation: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -22,7 +23,9 @@ export class OrderModal {
     this.monthInput = this.root.locator('#month');
     this.yearInput = this.root.locator('#year');
     this.purchaseButton = this.root.getByRole('button', { name: 'Purchase' });
-    this.closeButton = this.root.getByRole('button', { name: 'Close' });
+    // The modal has two "Close" controls (header "×" and footer button); target the footer one.
+    this.closeButton = this.root.locator('.modal-footer').getByRole('button', { name: 'Close' });
+    this.confirmation = page.locator('.sweet-alert');
   }
 
   async open() {

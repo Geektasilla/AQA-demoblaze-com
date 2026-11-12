@@ -1,71 +1,46 @@
 import { expect, test } from '../../src/fixtures/baseTest';
+import { addProductToCart } from '../../src/utils/helpers';
 
 test.describe('Cart flow', () => {
   test('adds one item to the cart and verifies it appears', async ({ page, cartPage }) => {
-    page.once('dialog', async (dialog) => {
-      await dialog.accept();
-    });
-
-    await page.goto('/prod.html?idp_=1');
-    await page.getByRole('link', { name: 'Add to cart' }).click();
-    await page.waitForTimeout(1000);
+    await addProductToCart(page, '1');
 
     await cartPage.openCart();
-    await cartPage.waitForCartReady();
+    await cartPage.waitForItemCount(1);
 
-    await expect(page.getByText('Samsung galaxy s6', { exact: false }).first()).toBeVisible();
+    await expect(cartPage.cartRows.first()).toContainText('Samsung galaxy s6');
   });
 
   test('adds multiple items and verifies cart rows are visible', async ({ page, cartPage }) => {
-    page.once('dialog', async (dialog) => {
-      await dialog.accept();
-    });
-
-    await page.goto('/prod.html?idp_=1');
-    await page.getByRole('link', { name: 'Add to cart' }).click();
-    await page.waitForTimeout(1000);
-
-    await page.goto('/prod.html?idp_=4');
-    await page.getByRole('link', { name: 'Add to cart' }).click();
-    await page.waitForTimeout(1000);
+    await addProductToCart(page, '1');
+    await addProductToCart(page, '4');
 
     await cartPage.openCart();
-    await cartPage.waitForCartReady();
+    await cartPage.waitForItemCount(2);
 
-    await expect(page.getByText('Samsung galaxy s6', { exact: false }).first()).toBeVisible();
-    await expect(page.getByText('Samsung galaxy s7', { exact: false }).first()).toBeVisible();
+    await expect(cartPage.cartTable).toContainText('Samsung galaxy s6');
+    await expect(cartPage.cartTable).toContainText('Samsung galaxy s7');
   });
 
   test('removes an item from the cart and updates the cart', async ({ page, cartPage }) => {
-    page.once('dialog', async (dialog) => {
-      await dialog.accept();
-    });
-
-    await page.goto('/prod.html?idp_=1');
-    await page.getByRole('link', { name: 'Add to cart' }).click();
-    await page.waitForTimeout(1000);
+    await addProductToCart(page, '1');
 
     await cartPage.openCart();
-    await cartPage.waitForCartReady();
-    await cartPage.removeItemByIndex(0);
-    await cartPage.waitForCartReady();
+    await cartPage.waitForItemCount(1);
 
-    await expect(page.getByText('Samsung galaxy s6', { exact: false }).first()).not.toBeVisible();
+    await cartPage.removeItemByIndex(0);
+
+    await cartPage.waitForItemCount(0);
+    await expect(cartPage.cartTable).not.toContainText('Samsung galaxy s6');
   });
 
   test('shows the total price for the current cart', async ({ page, cartPage }) => {
-    page.once('dialog', async (dialog) => {
-      await dialog.accept();
-    });
-
-    await page.goto('/prod.html?idp_=1');
-    await page.getByRole('link', { name: 'Add to cart' }).click();
-    await page.waitForTimeout(1000);
+    await addProductToCart(page, '1');
 
     await cartPage.openCart();
-    await cartPage.waitForCartReady();
+    await cartPage.waitForItemCount(1);
 
     const totalText = await cartPage.getTotalPriceText();
-    expect(totalText).not.toBe('');
+    expect(Number(totalText)).toBeGreaterThan(0);
   });
 });

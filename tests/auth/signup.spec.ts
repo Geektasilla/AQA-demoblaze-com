@@ -1,7 +1,8 @@
 import { expect, test } from '../../src/fixtures/baseTest';
+import { acceptNextDialog } from '../../src/utils/helpers';
 
 const createUniqueUser = () => {
-  const suffix = Date.now();
+  const suffix = `${Date.now()}_${Math.floor(Math.random() * 1e6)}`;
   return {
     username: `qa_user_${suffix}`,
     password: 'Test123!'
@@ -15,27 +16,18 @@ test.describe('Sign up flow', () => {
     await page.goto('/');
 
     await navbar.openSignUpModal();
-    page.once('dialog', async (dialog) => {
-      await dialog.accept();
-    });
     await signupModal.fillForm(user.username, user.password);
-    await signupModal.submit();
+    const firstMessage = await acceptNextDialog(page, () => signupModal.submit());
+    expect(firstMessage).toContain('Sign up successful');
     await expect(signupModal.root).toBeHidden();
+    // Bootstrap removes the backdrop only after the fade-out animation finishes.
+    await expect(page.locator('.modal-backdrop')).toHaveCount(0);
 
     await navbar.openSignUpModal();
-    await expect(signupModal.root).toBeVisible();
-
-    const dialogPromise = new Promise<string>((resolve) => {
-      page.once('dialog', async (dialog) => {
-        resolve(dialog.message());
-        await dialog.accept();
-      });
-    });
     await signupModal.fillForm(user.username, user.password);
-    await signupModal.submit();
+    const secondMessage = await acceptNextDialog(page, () => signupModal.submit());
 
-    const message = await dialogPromise;
-    expect(message.toLowerCase()).toContain('this user already exist');
+    expect(secondMessage.toLowerCase()).toContain('this user already exist');
   });
 
   test('shows an alert when submitting with empty fields', async ({ page, navbar, signupModal }) => {

@@ -1,3 +1,5 @@
+import { randomUUID } from 'node:crypto';
+
 import { test as base, expect as baseExpect } from '@playwright/test';
 
 import { LoginModal } from '../components/login.modal';
@@ -17,6 +19,16 @@ type AuthFixtures = {
 };
 
 export const test = base.extend<AuthFixtures>({
+  // Demoblaze identifies guests by the "user" cookie, which it sets only on the home page.
+  // Without it every anonymous client shares one cart, so each test gets its own guest id.
+  // Overriding `page` (instead of a module-level beforeEach) guarantees it runs for every spec file.
+  page: async ({ page }, use) => {
+    await page.context().addCookies([
+      { name: 'user', value: randomUUID(), domain: 'www.demoblaze.com', path: '/' },
+    ]);
+    await use(page);
+  },
+
   navbar: async ({ page }, use) => {
     await use(new NavbarComponent(page));
   },
@@ -40,18 +52,6 @@ export const test = base.extend<AuthFixtures>({
   productPage: async ({ page }, use) => {
     await use(new ProductPage(page));
   },
-});
-
-test.beforeEach(async ({ page }) => {
-  await page.addInitScript(() => {
-    window.localStorage.clear();
-  });
-});
-
-test.afterEach(async ({ page }) => {
-  await page.evaluate(() => {
-    window.localStorage.clear();
-  });
 });
 
 export const expect = baseExpect;

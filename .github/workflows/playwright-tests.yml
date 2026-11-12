@@ -4,17 +4,14 @@ on:
   push:
     branches:
       - main
-    paths:
-      - './**'
-      - '.github/workflows/playwright*'
 
   pull_request:
     branches:
-      - develop
-      - master
-    paths:
-      - './**'
-      - '.github/workflows/playwright*'
+      - main
+
+  schedule:
+    # Nightly regression run against the live site
+    - cron: '0 5 * * *'
 
   workflow_dispatch:
 
